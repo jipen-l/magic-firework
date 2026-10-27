@@ -1,2 +1,2 @@
 # magic firework
-a minecraft firework mod
+a firework mod for minecraft1
