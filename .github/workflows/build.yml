@@ -1,14 +1,27 @@
 # Automatically build the project and run any configured tests for every push
-# and submitted pull request. This can help catch issues that only occur on
-# certain platforms or Java versions, and provides a first line of defence
-# against bad commits.
+# to main and every submitted pull request. This can help catch issues that only
+# occur on certain platforms or Java versions, and provides a first line of
+# defence against bad commits.
 
 name: build
-on: [pull_request, push]
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege: the build only needs to read the repository.
+permissions:
+  contents: read
+
+# A newer push to the same branch makes the previous run obsolete.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
       - name: checkout repository
         uses: actions/checkout@v6
@@ -19,6 +32,7 @@ jobs:
         with:
           java-version: '25'
           distribution: 'microsoft'
+          cache: gradle
       - name: make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: build
